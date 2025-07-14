@@ -13,7 +13,7 @@ from cryptofeed.backends.backend import BackendBookCallback, BackendCallback, Ba
 
 
 class RedisCallback(BackendQueue):
-    def __init__(self, host='127.0.0.1', port=6379, socket=None, key=None, none_to='None', numeric_type=float, maxlen=None, **kwargs):
+    def __init__(self, host='127.0.0.1', port=6379, socket=None, key=None, none_to='None', numeric_type=float, redis_maxlen=None, **kwargs):
         """
         setting key lets you override the prefix on the
         key used in redis. The defaults are related to the data
@@ -29,7 +29,7 @@ class RedisCallback(BackendQueue):
         self.numeric_type = numeric_type
         self.none_to = none_to
         self.running = True
-        self.maxlen = maxlen 
+        self.redis_maxlen = redis_maxlen 
       
 
 
@@ -77,9 +77,9 @@ class RedisStreamCallback(RedisCallback):
                             update['closed'] = str(update['closed'])
 
                          
-                        if(self.maxlen is not None):
+                        if(self.redis_maxlen is not None):
                            
-                            pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update, maxlen=self.maxlen)
+                            pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update, maxlen=self.redis_maxlen)
                              
                         else:
                             pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update)
