@@ -29,7 +29,8 @@ class RedisCallback(BackendQueue):
         self.numeric_type = numeric_type
         self.none_to = none_to
         self.running = True
-        self.maxlen = maxlen if maxlen is not None else 1000
+        self.maxlen = maxlen 
+      
 
 
 class RedisZSetCallback(RedisCallback):
@@ -51,8 +52,8 @@ class RedisZSetCallback(RedisCallback):
                 async with conn.pipeline(transaction=False) as pipe:
                     for update in updates:
                          
-                        pipe = pipe.zadd(f"{self.key}-{update['exchange']}-{update['symbol']}", 0, maxlen=self.maxlen)
-                       
+                        pipe = pipe.zadd(f"{self.key}-{update['exchange']}-{update['symbol']}", 0)
+                        
                         
                     await pipe.execute()
 
@@ -75,11 +76,14 @@ class RedisStreamCallback(RedisCallback):
                         elif 'closed' in update:
                             update['closed'] = str(update['closed'])
 
+                         
                         if(self.maxlen is not None):
-                            pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update)
-                        else:
+                           
                             pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update, maxlen=self.maxlen)
-
+                             
+                        else:
+                            pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update)
+                            
                     await pipe.execute()
 
         await conn.close()
