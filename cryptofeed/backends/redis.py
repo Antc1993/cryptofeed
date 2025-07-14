@@ -30,7 +30,8 @@ class RedisCallback(BackendQueue):
         self.none_to = none_to
         self.running = True
         self.redis_maxlen = redis_maxlen 
-        print(self.redis_maxlen )
+        if isinstance(self.redis_maxlen, str):
+            self.redis_maxlen = int(self.redis_maxlen)
 
 
 class RedisZSetCallback(RedisCallback):
@@ -76,15 +77,18 @@ class RedisStreamCallback(RedisCallback):
                         elif 'closed' in update:
                             update['closed'] = str(update['closed'])
 
-                         
-                        if(self.redis_maxlen is not None):
-                           
-                            pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update, maxlen=self.redis_maxlen)
-                            print("execute with maxlen")
-                             
-                        else:
-                            pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update)
-                            print("execute  not maxlen")
+                        stream_name = f"{self.key}-{update['exchange']}-{update['symbol']}" 
+                        try:
+                            redis_maxlen_int = int(self.redis_maxlen)
+                            if redis_maxlen_int > 0:
+                                pipe = pipe.xadd(stream_name, update, maxlen=redis_maxlen_int)
+                                print("execute with maxlen")
+                            else:
+                                pipe = pipe.xadd(stream_name, update)
+                                print("execute not maxlen")
+                        except (ValueError, TypeError):
+                            pipe = pipe.xadd(stream_name, update)
+                            print("execute not maxlen (invalid type)")
                             
                     await pipe.execute()
 
