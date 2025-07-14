@@ -30,7 +30,7 @@ class RedisCallback(BackendQueue):
         self.none_to = none_to
         self.running = True
         self.redis_maxlen = redis_maxlen 
-      
+        print(self.redis_maxlen )
 
 
 class RedisZSetCallback(RedisCallback):
