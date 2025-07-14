@@ -82,13 +82,13 @@ class RedisStreamCallback(RedisCallback):
                             redis_maxlen_int = int(self.redis_maxlen)
                             if redis_maxlen_int > 0:
                                 pipe = pipe.xadd(stream_name, update, maxlen=redis_maxlen_int)
-                                print("execute with maxlen")
+                               
                             else:
                                 pipe = pipe.xadd(stream_name, update)
-                                print("execute not maxlen")
+                               
                         except (ValueError, TypeError):
                             pipe = pipe.xadd(stream_name, update)
-                            print("execute not maxlen (invalid type)")
+                            
                             
                     await pipe.execute()
 
