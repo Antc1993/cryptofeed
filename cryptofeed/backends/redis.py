@@ -80,9 +80,11 @@ class RedisStreamCallback(RedisCallback):
                         if(self.redis_maxlen is not None):
                            
                             pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update, maxlen=self.redis_maxlen)
+                            print("execute with maxlen")
                              
                         else:
                             pipe = pipe.xadd(f"{self.key}-{update['exchange']}-{update['symbol']}", update)
+                            print("execute  not maxlen")
                             
                     await pipe.execute()
 
